@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор лучшего</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+
+        :root {
+            --bg-dark: #0f0f13;
+            --bg-light: #1a1a24;
+            --text-main: #ffffff;
+            --accent: #ff2a2a;
+            --green: #10b981;
+            --gray: #3f3f46;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, var(--bg-light) 0%, var(--bg-dark) 100%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 10;
+        }
+
+        .screen { display: none; animation: fadeIn 0.4s ease; }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        .text-3d {
+            color: var(--accent);
+            display: inline-block;
+            text-shadow: 
+                1px 1px 0 #cc0000, 
+                2px 2px 0 #aa0000, 
+                3px 3px 0 #880000, 
+                4px 4px 0 #660000, 
+                5px 5px 0 #440000, 
+                6px 6px 15px rgba(255, 42, 42, 0.6);
+            transform: perspective(500px) rotateX(10deg);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .icon-huge {
+            font-size: 7rem;
+            line-height: 1;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255, 42, 42, 0.5);
+        }
+
+        .insult-text {
+            font-size: 1.4rem;
+            color: #e4e4e7;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-weight: 700;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .btn-gray { background: var(--gray); color: white; }
+        .btn-gray:hover { background: #52525b; }
+
+        .btn-red { 
+            background: var(--accent); 
+            color: white; 
+            box-shadow: 0 0 20px rgba(255, 42, 42, 0.4);
+        }
+        .btn-red:hover { 
+            background: #ff4d4d; 
+            box-shadow: 0 0 30px rgba(255, 42, 42, 0.6);
+            transform: scale(1.05);
+        }
+
+        .confirm-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+
+        .run-zone {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            margin-top: 20px;
+            border-radius: 12px;
+        }
+
+        .run-btn {
+            position: absolute;
+            padding: 16px 40px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+            transition: left 0.15s ease-out, top 0.15s ease-out, background 0.1s, box-shadow 0.1s;
+        }
+
+        .btn-yes { background: var(--green); color: white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        .btn-no-run { background: var(--gray); color: white; z-index: 5; }
+
+        .success-text { color: var(--green); text-shadow: 0 0 30px rgba(16, 185, 129, 0.5); }
+
+        /* ЭЛЕМЕНТЫ ПАСХАЛКИ ДЛЯ СУАНТОМА */
+        .speech-bubble {
+            position: absolute;
+            bottom: 140%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            color: #000000;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            line-height: 1.4;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+        }
+        
+        .gun-arm {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            /* Разворачиваем ствол к кнопке */
+            transform: translateY(-50%) translateX(20px) scaleX(-1);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 101;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));
+        }
+
+        .blood-drip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 0;
+            background: #ff0000; /* Ярко-красная кровь */
+            transform: translateX(-50%);
+            transition: height 2.5s cubic-bezier(0.4, 0, 1, 1);
+            z-index: -1;
+            border-radius: 6px;
+            box-shadow: 0 0 20px #ff0000, 0 5px 10px #aa0000;
+        }
+
+        .dead-btn {
+            transform: rotate(25deg) translateY(30px) !important;
+            filter: grayscale(100%) brightness(30%) !important;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+        }
+
+        #flash-bang {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: white;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="flash-bang"></div>
+
+    <div id="screen-main" class="container screen active">
+        <h1>Кто же лучший <br><span class="text-3d">эдитор</span>?</h1>
+        <div class="options-grid" id="options-container"></div>
+    </div>
+
+    <div id="screen-insult" class="container screen">
+        <div class="icon-huge" id="status-icon" style="color: var(--accent);">✕</div>
+        <div class="insult-text" id="insult-field"></div>
+        <div class="btn-group" id="insult-btns">
+            <button class="action-btn btn-gray" onclick="showScreen('main')">Назад</button>
+            <button class="action-btn btn-red" onclick="showConfirm()">Все равно проголосовать</button>
+        </div>
+    </div>
+
+    <div id="screen-confirm" class="container screen">
+        <div class="confirm-title">Ты уверен?</div>
+        <div class="run-zone" id="run-zone">
+            <button id="btn-yes" class="run-btn btn-yes">Да</button>
+            <button id="btn-back-run" class="run-btn btn-no-run">Назад</button>
+        </div>
+    </div>
+
+    <script>
+        const options = [
+            { id: 1, name: "кигр", insult: null },
+            { id: 2, name: "винланд", insult: "Винланд? Ты прикалываешься? У этого криворукого склейки хуже, чем монтаж индийских сериалов. Твой вкус пробил дно." },
+            { id: 3, name: "вэкэ", insult: "Выбрать вэкэ — это расписаться в собственной умственной отсталости. Иди промой глаза с мылом." },
+            { id: 4, name: "бар", insult: "Бар? Чел монтирует левой пяткой в пьяном угаре. Поздравляю, ты фанат визуального мусора." },
+            { id: 5, name: "теохуй (теонакс)", insult: "Теохуй. Название говорит само за себя. Если тебе это нравится, у меня для тебя плохие новости — ты еблан." },
+            { id: 6, name: "пидор", insult: "Ну ты и самокритичен. Выбрал своего брата по разуму? Молодец, садись, два." },
+            { id: 7, name: "харун", insult: "Таймлайн Харуна выглядит как кардиограмма эпилептика. Удали Афтер Эффектс и не позорься." },
+            { id: 8, name: "себ аеп", insult: "Себ аеп? Серьезно? Тебе можно насрать в тарелку, наложить глитч, и ты скажешь, что это шедевр." },
+            { id: 9, name: "квб1тик", insult: "Квб1тик... Господи, да микроволновка отрендерит лучше. У тебя просто нет мозгов." },
+            { id: 10, name: "тупой жирный пидорас", insult: "Суантом? Этот кусок сала?! Ты буквально плюнул в лицо всему комьюнити. Скройся нахуй." }
+        ];
+
+        // Массив отборного дерьма для кнопки
+        const suicidePhrases = [
+            ["ВСЕ НАХУЙ!", "Я ЗАЕБАЛАСЬ!", "ПОШЕЛ НАХУЙ,<br>ПИДОРАС ГНИЛОЙ!"],
+            ["ДА ТЫ ЗАЕБАЛ!", "КЛИКАЙ СЕБЕ В ОЧКО!", "Я ВЫХОЖУ<br>ИЗ ЭТОЙ ИГРЫ!"],
+            ["СУКА...", "МОИ НЕРВЫ<br>НЕ КАЗЕННЫЕ!", "ЖМИ СВОЮ МАТЬ,<br>УЕБИЩЕ!"],
+            ["БЛЯТЬ, ХВАТИТ!", "ТЫ БОЛЬНОЙ<br>УБЛЮДОК!", "Я В АД,<br>А ТЫ ЗА МНОЙ!"],
+            ["ОТЪЕБИСЬ!", "10 РАЗ!<br>10 СУКА РАЗ!", "ЖЕЛАЮ ТЕБЕ<br>СДОХНУТЬ!"]
+        ];
+
+        const container = document.getElementById('options-container');
+        let currentOpt = null;
+        let escapeCount = 0;
+        let suantomEscapes = 0;
+        let isTrapActivated = false;
+        let isDead = false;
+        let activeTimeouts = []; // Чистильщик таймеров
+
+        options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = `${idx + 1}. ${opt.name}`;
+            btn.onclick = () => selectOption(opt);
+            container.appendChild(btn);
+        });
+
+        function clearTimeouts() {
+            activeTimeouts.forEach(clearTimeout);
+            activeTimeouts = [];
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${id}`).classList.add('active');
+        }
+
+        function selectOption(opt) {
+            currentOpt = opt;
+            escapeCount = 0;
+            suantomEscapes = 0;
+            isTrapActivated = false;
+            isDead = false;
+            clearTimeouts(); // Сносим таймеры суицида, если чел нажал Назад во время анимации
+            
+            const yesBtn = document.getElementById('btn-yes');
+            const backBtn = document.getElementById('btn-back-run');
+            
+            // Воскрешаем кнопку из мертвых
+            yesBtn.className = 'run-btn btn-yes'; 
+            yesBtn.style = ''; 
+            yesBtn.innerHTML = 'Да'; // Уничтожает пушку, кровь и баббл внутри
+            yesBtn.style.left = '20%';
+            yesBtn.style.top = '40%';
+            yesBtn.style.pointerEvents = 'auto';
+
+            backBtn.style.left = '60%';
+            backBtn.style.top = '40%';
+
+            if (opt.insult === null) {
+                showConfirm();
+            } else {
+                document.getElementById('status-icon').textContent = '✕';
+                document.getElementById('status-icon').className = 'icon-huge';
+                document.getElementById('status-icon').style.color = 'var(--accent)';
+                document.getElementById('insult-field').textContent = opt.insult;
+                document.getElementById('insult-btns').style.display = 'flex';
+                showScreen('insult');
+            }
+        }
+
+        function showConfirm() {
+            showScreen('confirm');
+        }
+
+        function moveBtnWithCollisionCheck(btnToMove, staticBtn) {
+            const zone = document.getElementById('run-zone');
+            const maxX = zone.clientWidth - btnToMove.clientWidth;
+            const maxY = zone.clientHeight - btnToMove.clientHeight;
+            
+            const staticRect = staticBtn.getBoundingClientRect();
+            const zoneRect = zone.getBoundingClientRect();
+            
+            const stL = staticRect.left - zoneRect.left;
+            const stR = staticRect.right - zoneRect.left;
+            const stT = staticRect.top - zoneRect.top;
+            const stB = staticRect.bottom - zoneRect.top;
+
+            let newX = 0, newY = 0;
+            let isOverlapping = true;
+            let attempts = 0;
+
+            while(isOverlapping && attempts < 50) {
+                newX = Math.floor(Math.random() * maxX);
+                newY = Math.floor(Math.random() * maxY);
+                
+                const mvL = newX - 15;
+                const mvR = newX + btnToMove.clientWidth + 15;
+                const mvT = newY - 15;
+                const mvB = newY + btnToMove.clientHeight + 15;
+                
+                if (mvR < stL || mvL > stR || mvB < stT || mvT > stB) {
+                    isOverlapping = false;
+                }
+                attempts++;
+            }
+            
+            btnToMove.style.left = `${newX}px`;
+            btnToMove.style.top = `${newY}px`;
+        }
+
+        function triggerSuicide(btn) {
+            isDead = true;
+            btn.style.pointerEvents = 'none'; 
+            
+            // Выбираем рандомный мат
+            const phrases = suicidePhrases[Math.floor(Math.random() * suicidePhrases.length)];
+
+            const bubble = document.createElement('div');
+            bubble.className = 'speech-bubble';
+            btn.appendChild(bubble);
+
+            // Настоящий реалистичный ствол (SVG)
+            const gun = document.createElement('div');
+            gun.className = 'gun-arm';
+            gun.innerHTML = `<svg viewBox="0 0 24 24" fill="#1a1a1a" width="60" height="60"><path d="M21.5 8H3.5C2.7 8 2 8.7 2 9.5v2C2 12.3 2.7 13 3.5 13H5v6c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-4h2.5l3.8 4.7c.4.5 1 .8 1.7.8H22v-3.4l-4.2-4.1h2.7c.8 0 1.5-.7 1.5-1.5v-3C23 8.7 22.3 8 21.5 8z"/></svg>`; 
+            btn.appendChild(gun);
+
+            const blood = document.createElement('div');
+            blood.className = 'blood-drip';
+            btn.appendChild(blood);
+
+            activeTimeouts.push(setTimeout(() => {
+                bubble.style.opacity = '1';
+                bubble.innerHTML = phrases[0];
+            }, 100));
+
+            activeTimeouts.push(setTimeout(() => {
+                bubble.innerHTML = phrases[1];
+            }, 1300));
+
+            activeTimeouts.push(setTimeout(() => {
+                bubble.innerHTML = phrases[2];
+            }, 2600));
+
+            activeTimeouts.push(setTimeout(() => {
+                gun.style.opacity = '1';
+                gun.style.transform = 'translateY(-50%) translateX(0) scaleX(-1)'; 
+            }, 4300));
+
+            activeTimeouts.push(setTimeout(() => {
+                const flash = document.getElementById('flash-bang');
+                flash.style.opacity = '1';
+                setTimeout(() => { flash.style.opacity = '0'; }, 50);
+
+                btn.classList.add('dead-btn');
+                bubble.style.opacity = '0'; 
+                gun.style.opacity = '0'; 
+
+                const distToBottom = window.innerHeight - btn.getBoundingClientRect().bottom;
+                blood.style.height = `${distToBottom + 200}px`; 
+            }, 5000));
+        }
+
+        const btnYes = document.getElementById('btn-yes');
+        const btnBackRun = document.getElementById('btn-back-run');
+
+        btnYes.addEventListener('mouseover', () => {
+            if (isDead) return;
+
+            if (currentOpt && currentOpt.id === 10) {
+                suantomEscapes++;
+                if (suantomEscapes < 11) {
+                    moveBtnWithCollisionCheck(btnYes, btnBackRun);
+                } else if (suantomEscapes === 11) {
+                    triggerSuicide(btnYes);
+                }
+                return; 
+            }
+
+            if (currentOpt && currentOpt.insult !== null && !isTrapActivated) {
+                escapeCount++;
+                
+                if (escapeCount >= 6) {
+                    isTrapActivated = true;
+                    btnYes.textContent = 'Назад';
+                    btnYes.style.background = 'var(--accent)';
+                    btnYes.style.boxShadow = '0 0 20px rgba(255, 42, 42, 0.6)';
+                } else {
+                    moveBtnWithCollisionCheck(btnYes, btnBackRun);
+                }
+            }
+        });
+
+        btnYes.addEventListener('mousedown', () => {
+            if (isDead) return;
+
+            if (currentOpt && currentOpt.insult === null) {
+                document.getElementById('status-icon').textContent = '✓';
+                document.getElementById('status-icon').className = 'icon-huge success-text';
+                document.getElementById('status-icon').style.color = 'var(--green)';
+                document.getElementById('insult-field').textContent = 'Единственный правильный выбор. Кигр — бог АЕ, а у тебя есть мозги. Свободен.';
+                document.getElementById('insult-btns').style.display = 'none';
+                showScreen('insult');
+            } else if (isTrapActivated) {
+                showScreen('main');
+            } else {
+                if (currentOpt.id === 10) {
+                    suantomEscapes++;
+                    if (suantomEscapes >= 11) triggerSuicide(btnYes);
+                    else moveBtnWithCollisionCheck(btnYes, btnBackRun);
+                } else {
+                    moveBtnWithCollisionCheck(btnYes, btnBackRun);
+                }
+            }
+        });
+
+        btnBackRun.addEventListener('mouseover', () => {
+            if (currentOpt && currentOpt.insult === null) {
+                moveBtnWithCollisionCheck(btnBackRun, btnYes);
+            }
+        });
+
+        btnBackRun.addEventListener('mousedown', () => {
+            if (currentOpt && currentOpt.insult !== null) {
+                showScreen('main');
+            } else {
+                moveBtnWithCollisionCheck(btnBackRun, btnYes);
+            }
+        });
+    </script>
+</body>
+</html>
